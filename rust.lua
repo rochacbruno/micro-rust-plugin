@@ -66,7 +66,7 @@ function displayerrormessage(err)
 end
 
 -- Micro Editor help file for this plugin
-AddRuntimeFile(rust, "help", "help/rust-plugin.md")
+AddRuntimeFile("rust", "help", "help/rust-plugin.md")
 -- Micro Editor binkeys for this plugin
 --indKey("F6", "rust.rustfmt")
 -- Micro Editor commands added from this plugin
