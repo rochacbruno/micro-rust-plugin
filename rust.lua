@@ -17,11 +17,11 @@ if GetOption("rustclippy") == nil then
     AddOption("rustclippy", false)
 end
 -- Micro editor Callback functions below
-function onViewOpen(view)
-    if view.Buf:FileType() == "go" then
-        SetLocalOption("tabstospaces", "off", view)
-    end
-end
+-- function onViewOpen(view)
+--     if view.Buf:FileType() == "rust" then
+--         SetLocalOption("tabstospaces", "off", view)
+--     end
+-- end
 
 function onSave(view)
     if CurView().Buf:FileType() == "rust" then
