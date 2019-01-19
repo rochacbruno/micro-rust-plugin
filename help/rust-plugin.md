@@ -20,5 +20,11 @@ options:
 * `rust-plugin-cargofmt`: run cargo-fmt on project. Default value: `off`
 * `rust-plugin-rustclippy`: run cargo-clippy on project. Default value: `off`
 
-You also press F6 (the default binding) to open a prompt to rename. You
-can rebind this in your `bindings.json` file with the action `go.gorename`.
+You also press F6 (the default binding) to open a prompt to rename. 
+
+You can rebind this in your `bindings.json` file with the action's below
+
+`rust.rustfmt`
+`rust.cargofmt`
+`rust.cargocheck`
+`rust.cargoclippy`

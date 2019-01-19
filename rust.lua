@@ -16,6 +16,11 @@ end
 if GetOption("rust-plugin-rustclippy") == nil then
     AddOption("rust-plugin-rustclippy", false)
 end
+-- cargo check linter
+if GetOption("rust-plugin-cargo-check") == nil then
+    AddOption("rust-plugin-cargo-check", false)
+end
+
 -- Micro editor Callback functions below
 -- function onViewOpen(view)
 --     if view.Buf:FileType() == "rust" then
@@ -37,7 +42,7 @@ function onSave(view)
 end
 
 -- Functions below for this plugin
-function rustfmt(backupflag)
+function rustfmt()
     CurView():Save(false)
     local handle
     if GetOption("rust-plugin-rustfmt-backup") then handle = io.popen("rustfmt --backup " .. CurView().Buf.Path)
@@ -64,6 +69,15 @@ function rustclippy()
     CurView():ReOpen()
 end
 
+
+function cargocheck()
+    CurView():Save(false)
+    local handle = io.popen("cargo check --message-format short")
+    local result = handle:read("*a") -- , ":")
+    handle:close()
+    CurView():ReOpen()
+end
+
 function displayerrormessage(err)
     messenger:Error(err)
 end
@@ -75,4 +89,5 @@ AddRuntimeFile("rust", "help", "help/rust-plugin.md")
 -- Micro Editor commands added from this plugin
 MakeCommand("rustfmt", "rust.rustfmt", 0)
 MakeCommand("cargofmt", "rust.cargofmt", 0)
-MakeCommand("rustfmt", "rust.rustfmt", 0)
+MakeCommand("cargocheck", "rust.cargocheck", 0)
+MakeCommand("cargoclippy", "rust.cargoclippy", 0)
