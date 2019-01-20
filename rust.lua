@@ -9,8 +9,8 @@ if GetOption("rust-plugin-rustfmt") == nil then
     AddOption("rust-plugin-rustfmt", true)
 end
 -- rustfmt backup file
-if GetOption("rust-plugin-rustfmt-backup") == nil then
-    AddOption("rust-plugin-rustfmt-backup", false)
+if GetOption("rust-plugin-backup") == nil then
+    AddOption("rust-plugin-backup", false)
 end
 -- clippy linter
 if GetOption("rust-plugin-rustclippy") == nil then
@@ -40,7 +40,10 @@ function onSave(view)
             cargofmt()
         end
         if GetOption("rust-plugin-rustclippy") then
-            rustclippy()
+            cargoclippy()
+        end
+        if GetOption("rust-plugin-rustc") then
+            rustc()
         end
     end
 end
@@ -48,10 +51,21 @@ end
 -- rustfmt() is used for formating current file in Micro editor
 function rustfmt()
     CurView():Save(false)
-    if GetOption("rust-plugin-rustfmt-backup") then
+    if GetOption("rust-plugin-backup") then
         RunShellCommand("rustfmt --backup " .. CurView().Buf.Path)
     else
         RunShellCommand("rustfmt " .. CurView().Buf.Path)
+    end
+    CurView():ReOpen()
+end
+
+-- cargofmt() is used for formating current project in Micro editor
+function cargofmt()
+    CurView():Save(false)
+    if GetOption("rust-plugin-backup") then
+        RunShellCommand("cargo-fmt -- --backup")
+    else
+        RunShellCommand("cargo-fmt")
     end
     CurView():ReOpen()
 end
@@ -64,17 +78,12 @@ function rustc()
     CurView():ReOpen()
 end
 
--- cargofmt() is used for formating current project in Micro editor
-function cargofmt()
+-- cargoclippy() is used for checking current file in Micro editor
+-- clippy report is in the log e.g In Micro Editor ctrl e log
+function cargoclippy()
     CurView():Save(false)
-    RunShellCommand("cargo-fmt ")
-    CurView():ReOpen()
-end
-
--- rustclippy() is used for checking current file in Micro editor
-function rustclippy()
-    CurView():Save(false)
-    RunShellCommand("cargo-clippy " .. CurView().Buf.Path)
+    args, error = RunShellCommand("cargo-clippy " .. CurView().Buf.Path)
+    messenger:AddLog(args)
     CurView():ReOpen()
 end
 
