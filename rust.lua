@@ -54,6 +54,7 @@ function rustfmt()
     if GetOption("rust-plugin-backup") then
         RunShellCommand("rustfmt --backup " .. CurView().Buf.Path)
     else
+ 		messenger:Addlog("rustfmt path = " .. CurView().Buf.Path)   	
         RunShellCommand("rustfmt " .. CurView().Buf.Path)
     end
     CurView():ReOpen()
@@ -74,6 +75,7 @@ end
 function rustc()
     CurView():Save(false)
     args, error = RunShellCommand("rustc --error-format short " .. CurView().Buf.Path)
+	messenger:Addlog(args)
     messenger:AddLog(out(args))
     CurView():ReOpen()
 end
@@ -89,17 +91,22 @@ end
 
 -- cargocheck() is used for checking current project in Micro editor
 function cargocheck()
+	messenger:AddLog("cargocheck called from rust-plugin")
     CurView():Save(false)
     local file = CurView().Buf.Path
     local dir = DirectoryName(file)
     CurView():ClearGutterMessages("rust-plugin")
-    -- JobSpawn("cargo", {"check --message-format short"}, "", "", "rust.out")
-    args, error = RunShellCommand("cargo check --message-format short")
-    messenger:AddLog(out(args))
+    JobSpawn("cargo", {"check","--message-format","short"}, "", "", "rust.out")
+    -- args, error = RunShellCommand("cargo check --message-format short")
     CurView():ReOpen()
 end
 
 function out(output)
+	if output == nil then 
+	messenger:AddLog("rust-plugin output = nil")
+	return 
+	end
+	messenger:AddLog(output)
     local lines = split(output, "\n")
     for _, line in ipairs(lines) do
         -- Trim whitespace
@@ -107,7 +114,7 @@ function out(output)
         if string.find(line, "^.*.rs:.*") then --
             messenger:AddLog("Line = " .. line)
             local file, linenumber, colnumber, message = string.match(line, "^(.-):(%d*):(%d):(.*)")
-            -- messenger:AddLog("Message = " .. message)
+            messenger:AddLog("Message = " .. message)
             if basename(CurView().Buf.Path) == basename(file) then
                 CurView():GutterMessage("rust-plugin", tonumber(linenumber), message, 2)
             end
@@ -130,6 +137,7 @@ function basename(file)
         sep = "\\"
     end
     local name = string.gsub(file, "(.*" .. sep .. ")(.*)", "%2")
+	messenger:AddLog(name)
     return name
 end
 
