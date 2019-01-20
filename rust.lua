@@ -50,11 +50,12 @@ end
 
 -- rustfmt() is used for formating current file in Micro editor
 function rustfmt()
+    messenger:AddLog("rustfmt called from rust-plugin")
     CurView():Save(false)
     if GetOption("rust-plugin-backup") then
         RunShellCommand("rustfmt --backup " .. CurView().Buf.Path)
     else
- 		messenger:Addlog("rustfmt path = " .. CurView().Buf.Path)   	
+ 		messenger:AddLog("rustfmt path = " .. CurView().Buf.Path)   	
         RunShellCommand("rustfmt " .. CurView().Buf.Path)
     end
     CurView():ReOpen()
@@ -62,6 +63,7 @@ end
 
 -- cargofmt() is used for formating current project in Micro editor
 function cargofmt()
+    messenger:AddLog("cargofmt called from rust-plugin")
     CurView():Save(false)
     if GetOption("rust-plugin-backup") then
         RunShellCommand("cargo-fmt -- --backup")
@@ -73,9 +75,10 @@ end
 
 -- rustc() is used for linting current file in Micro editor
 function rustc()
+    messenger:AddLog("rustc called from rust-plugin")
     CurView():Save(false)
     args, error = RunShellCommand("rustc --error-format short " .. CurView().Buf.Path)
-	messenger:Addlog(args)
+	messenger:AddLog(args)
     messenger:AddLog(out(args))
     CurView():ReOpen()
 end
@@ -83,6 +86,7 @@ end
 -- cargoclippy() is used for checking current file in Micro editor
 -- clippy report is in the log e.g In Micro Editor ctrl e log
 function cargoclippy()
+    messenger:AddLog("cargoclippy called from rust-plugin")
     CurView():Save(false)
     args, error = RunShellCommand("cargo-clippy " .. CurView().Buf.Path)
     messenger:AddLog(args)
@@ -95,18 +99,19 @@ function cargocheck()
     CurView():Save(false)
     local file = CurView().Buf.Path
     local dir = DirectoryName(file)
+    -- todo go up folder to find toml file
     CurView():ClearGutterMessages("rust-plugin")
     JobSpawn("cargo", {"check","--message-format","short"}, "", "", "rust.out")
-    -- args, error = RunShellCommand("cargo check --message-format short")
     CurView():ReOpen()
 end
 
 function out(output)
+    messenger:AddLog("out called from rust-plugin")
 	if output == nil then 
-	messenger:AddLog("rust-plugin output = nil")
+	messenger:AddLog("output = nil")
 	return 
 	end
-	messenger:AddLog(output)
+	messenger:AddLog("Output = ",output)
     local lines = split(output, "\n")
     for _, line in ipairs(lines) do
         -- Trim whitespace
@@ -114,7 +119,6 @@ function out(output)
         if string.find(line, "^.*.rs:.*") then --
             messenger:AddLog("Line = " .. line)
             local file, linenumber, colnumber, message = string.match(line, "^(.-):(%d*):(%d):(.*)")
-            messenger:AddLog("Message = " .. message)
             if basename(CurView().Buf.Path) == basename(file) then
                 CurView():GutterMessage("rust-plugin", tonumber(linenumber), message, 2)
             end
@@ -123,6 +127,7 @@ function out(output)
 end
 
 function split(str, sep)
+    messenger:AddLog("split called from rust-plugin")
     local result = {}
     local regex = ("([^%s]+)"):format(sep)
     for each in str:gmatch(regex) do
@@ -132,6 +137,7 @@ function split(str, sep)
 end
 
 function basename(file)
+    messenger:AddLog("basename called from rust-plugin")
     local sep = "/"
     if OS == "windows" then
         sep = "\\"
@@ -142,6 +148,7 @@ function basename(file)
 end
 
 function displayerrormessage(err)
+    messenger:AddLog("displayerrormessage called from rust-plugin")
     messenger:Error(err)
 end
 
