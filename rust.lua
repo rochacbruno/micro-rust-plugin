@@ -12,13 +12,17 @@ end
 if GetOption("rust-plugin-rustfmt-backup") == nil then
     AddOption("rust-plugin-rustfmt-backup", false)
 end
--- clippy linter 
+-- clippy linter
 if GetOption("rust-plugin-rustclippy") == nil then
     AddOption("rust-plugin-rustclippy", false)
 end
 -- cargo check linter
 if GetOption("rust-plugin-cargo-check") == nil then
     AddOption("rust-plugin-cargo-check", false)
+end
+-- rustc file only
+if GetOption("rust-plugin-rustc") == nil then
+    AddOption("rust-plugin-rustc", false)
 end
 
 -- Micro editor Callback functions below
@@ -31,51 +35,93 @@ end
 function onSave(view)
     if CurView().Buf:FileType() == "rust" then
         if GetOption("rust-plugin-rustfmt") then
-            rustfmt() 
+            rustfmt()
         elseif GetOption("rust-plugin-cargofmt") then
             cargofmt()
         end
-    if GetOption("rust-plugin-rustclippy") then
-        rustclippy()
-    end
+        if GetOption("rust-plugin-rustclippy") then
+            rustclippy()
+        end
     end
 end
 
--- Functions below for this plugin
+-- rustfmt() is used for formating current file in Micro editor
 function rustfmt()
     CurView():Save(false)
-    local handle
-    if GetOption("rust-plugin-rustfmt-backup") then handle = io.popen("rustfmt --backup " .. CurView().Buf.Path)
-    else handle = io.popen("rustfmt " .. CurView().Buf.Path)
+    if GetOption("rust-plugin-rustfmt-backup") then
+        RunShellCommand("rustfmt --backup " .. CurView().Buf.Path)
+    else
+        RunShellCommand("rustfmt " .. CurView().Buf.Path)
     end
-    local result = handle:read("*a")
-    handle:close()
     CurView():ReOpen()
 end
 
+-- rustc() is used for linting current file in Micro editor
+function rustc()
+    CurView():Save(false)
+    args, error = RunShellCommand("rustc --error-format short " .. CurView().Buf.Path)
+    messenger:AddLog(out(args))
+    CurView():ReOpen()
+end
+
+-- cargofmt() is used for formating current project in Micro editor
 function cargofmt()
     CurView():Save(false)
-    local handle = io.popen("cargo-fmt ")
-    local result = handle:read("*a") -- , ":")
-    handle:close()
+    RunShellCommand("cargo-fmt ")
     CurView():ReOpen()
 end
 
+-- rustclippy() is used for checking current file in Micro editor
 function rustclippy()
     CurView():Save(false)
-    local handle = io.popen("cargo-clippy " .. CurView().Buf.Path)
-    local result = handle:read("*a") -- , ":")
-    handle:close()
+    RunShellCommand("cargo-clippy " .. CurView().Buf.Path)
     CurView():ReOpen()
 end
 
-
+-- cargocheck() is used for checking current project in Micro editor
 function cargocheck()
     CurView():Save(false)
-    local handle = io.popen("cargo check --message-format short")
-    local result = handle:read("*a") -- , ":")
-    handle:close()
+    local file = CurView().Buf.Path
+    local dir = DirectoryName(file)
+    CurView():ClearGutterMessages("rust-plugin")
+    -- JobSpawn("cargo", {"check --message-format short"}, "", "", "rust.out")
+    args, error = RunShellCommand("cargo check --message-format short")
+    messenger:AddLog(out(args))
     CurView():ReOpen()
+end
+
+function out(output)
+    local lines = split(output, "\n")
+    for _, line in ipairs(lines) do
+        -- Trim whitespace
+        line = line:match("^%s*(.+)%s*$")
+        if string.find(line, "^.*.rs:.*") then --
+            messenger:AddLog("Line = " .. line)
+            local file, linenumber, colnumber, message = string.match(line, "^(.-):(%d*):(%d):(.*)")
+            -- messenger:AddLog("Message = " .. message)
+            if basename(CurView().Buf.Path) == basename(file) then
+                CurView():GutterMessage("rust-plugin", tonumber(linenumber), message, 2)
+            end
+        end
+    end
+end
+
+function split(str, sep)
+    local result = {}
+    local regex = ("([^%s]+)"):format(sep)
+    for each in str:gmatch(regex) do
+        table.insert(result, each)
+    end
+    return result
+end
+
+function basename(file)
+    local sep = "/"
+    if OS == "windows" then
+        sep = "\\"
+    end
+    local name = string.gsub(file, "(.*" .. sep .. ")(.*)", "%2")
+    return name
 end
 
 function displayerrormessage(err)
@@ -91,3 +137,4 @@ MakeCommand("rustfmt", "rust.rustfmt", 0)
 MakeCommand("cargofmt", "rust.cargofmt", 0)
 MakeCommand("cargocheck", "rust.cargocheck", 0)
 MakeCommand("cargoclippy", "rust.cargoclippy", 0)
+MakeCommand("rustc", "rust.rustc", 0)
