@@ -4,7 +4,7 @@
   "Tags": ["rustlang", "rust"],
   "Versions": [
     {
-      "Version": "0.1.0",
+      "Version": "0.1.1",
       "Url": "https://github.com/tommyshem/micro-rust-plugin/archive/v0.1.0.zip",
       "Require": {
         "micro": ">=1.0.3"

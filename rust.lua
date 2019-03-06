@@ -1,28 +1,36 @@
-VERSION = "0.1.0"
--- Micro Editor options for this plugin
--- cargo formating project
-if GetOption("rust-plugin-cargofmt") == nil then
-    AddOption("rust-plugin-cargofmt", false)
+VERSION = "0.1.1"
+-- Micro Editor options for this rust plugin
+
+-- Format plugin options below
+-- Toggle format checking on/off (default true)
+if GetOption("rust-plugin-use-fmt") == nil then
+    AddOption("rust-plugin-use-fmt", false)
 end
--- rustfmt file only
-if GetOption("rust-plugin-rustfmt") == nil then
-    AddOption("rust-plugin-rustfmt", true)
-end
--- rustfmt backup file
+-- use rustfmt backup file option (default false)
 if GetOption("rust-plugin-backup") == nil then
     AddOption("rust-plugin-backup", false)
 end
--- clippy linter
-if GetOption("rust-plugin-rustclippy") == nil then
-    AddOption("rust-plugin-rustclippy", false)
+
+-- Linter plugin options below
+-- use clippy linter on save (default false)
+if GetOption("rust-plugin-use-linter") == nil then
+    AddOption("rust-plugin-use-linter", false)
 end
--- cargo check linter
+-- use cargo check linter on save (default false)
 if GetOption("rust-plugin-cargo-check") == nil then
     AddOption("rust-plugin-cargo-check", false)
 end
--- rustc file only
+
+-- Build options below
+-- use cargo or rustc option (default false)
+-- true use cargo does the project
+-- false use rustc current file only
+if GetOption("rust-plugin-use-cargo") == nil then
+    AddOption("rust-plugin-use-cargo", false)
+end
+-- use rustc on save current file only (default fasle)
 if GetOption("rust-plugin-rustc") == nil then
-    AddOption("rust-plugin-rustc", false)
+    AddOption("rust-plugin-rustc", true)
 end
 
 -- Micro editor Callback functions below
@@ -32,9 +40,10 @@ end
 --     end
 -- end
 
+--Micro editor Callback function when the file is saved
 function onSave(view)
     if CurView().Buf:FileType() == "rust" then
-        if GetOption("rust-plugin-rustfmt") then
+        if GetOption("rust-plugin-use-fmt") then
             rustfmt()
         elseif GetOption("rust-plugin-cargofmt") then
             cargofmt()
