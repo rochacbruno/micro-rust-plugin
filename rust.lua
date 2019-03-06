@@ -71,7 +71,7 @@ end
 -- run commad in shell with debuging logging in micro
 function runshellcommand(runcommand)
     messenger:AddLog("rust-plugin - function runshellcommand command = " .. runcommand)
-    CurView():Save(false)
+    -- CurView():Save(false) TODO Only needed if run from command
     args, error = RunShellCommand(runcommand)
 	if args == nil then
 		messenger:AddLog("rust-plugin - args = nil")
@@ -100,33 +100,27 @@ end
 -- cargofmt() is used for formating current project in Micro editor
 function cargofmt()
     messenger:AddLog("rust-plugin - function cargofmt")
-    CurView():Save(false)
     if GetOption("rust-plugin-backup") then
-        RunShellCommand("cargo-fmt -- --backup")
+        runshellcommand("cargo-fmt -- --backup")
     else
-        RunShellCommand("cargo-fmt")
+        runshellcommand("cargo-fmt")
     end
-    CurView():ReOpen()
 end
 
 -- rustc() is used for linting current file in Micro editor
 function rustc()
     messenger:AddLog("rust-plugin - function rustc")
-    CurView():Save(false)
-    args, error = RunShellCommand("rustc --error-format short " .. CurView().Buf.Path)
-    messenger:AddLog(args)
-    messenger:AddLog(out(args))
-    CurView():ReOpen()
+    runshellcommand("rustc --error-format short " .. CurView().Buf.Path)
+    -- messenger:AddLog(out(args))
+    -- TODO Needs finishing
 end
 
 -- cargoclippy() is used for checking current file in Micro editor
 -- clippy report is in the log e.g In Micro Editor ctrl e log
 function cargoclippy()
     messenger:AddLog("rust-plugin - function cargoclippy")
-    CurView():Save(false)
-    args, error = RunShellCommand("cargo-clippy " .. CurView().Buf.Path)
-    messenger:AddLog(args)
-    CurView():ReOpen()
+    runshellcommand("cargo-clippy " .. CurView().Buf.Path)
+    -- TODO Needs finishing
 end
 
 -- cargocheck() is used for checking current project in Micro editor
