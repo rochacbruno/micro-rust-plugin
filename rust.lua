@@ -75,6 +75,8 @@ function runshellcommand(runcommand)
     args, error = RunShellCommand(runcommand)
 	if args == nil then
 		messenger:AddLog("rust-plugin - args = nil")
+	elseif args == "" then
+	messenger:AddLog("rust-plugin - runshellcommand args = empty string")
 	else messenger:AddLog("rust-plugin - runshellcommand args = " .. args)
 	end
 --    if error == nil then
@@ -87,14 +89,12 @@ end
 -- rustfmt() is used for formating current file in Micro editor
 function rustfmt()
     messenger:AddLog("rust-plugin - function rustfmt")
-    CurView():Save(false)
     if GetOption("rust-plugin-backup") then
         runshellcommand("rustfmt --backup " .. CurView().Buf.Path)
     else
         messenger:AddLog("rustfmt path = " .. CurView().Buf.Path)
         runshellcommand("rustfmt " .. CurView().Buf.Path)
     end
-    CurView():ReOpen()
 end
 
 -- cargofmt() is used for formating current project in Micro editor
