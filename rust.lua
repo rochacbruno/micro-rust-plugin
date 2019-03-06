@@ -22,9 +22,9 @@ if GetOption("rust-plugin-cargo-check") == nil then
 end
 
 -- Build options below
--- toggle build option on/off (default true)
+-- toggle build option on/off (default false)
 if GetOption("rust-plugin-build") == nil then
-    AddOption("rust-plugin-build", true)
+    AddOption("rust-plugin-build", false)
 end
 -- use cargo or rustc option to build (default false)
 -- true use cargo to build all the project
@@ -63,8 +63,6 @@ function onSave(view)
 
         -- check if to build the code
         if GetOption("rust-plugin-build") then
-            rustc()
-        else
             rustc()
         end
     end
