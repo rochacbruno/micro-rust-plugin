@@ -100,6 +100,11 @@ end
 -- cargofmt() is used for formating current project in Micro editor
 function cargofmt()
     messenger:AddLog("rust-plugin - function cargofmt")
+    -- Keeps track of the current working directory
+    local current_dir = WorkingDirectory()
+    messenger:AddLog("dir = " .. current_dir)
+    local base = basename(current_dir)
+    messenger:AddLog("base = " .. base)
     if GetOption("rust-plugin-backup") then
         runshellcommand("cargo-fmt -- --backup")
     else
@@ -175,6 +180,18 @@ function basename(file)
     local name = string.gsub(file, "(.*" .. sep .. ")(.*)", "%2")
     messenger:AddLog(name)
     return name
+end
+
+-- Returns the basename of a path (aka a name without leading path)
+local function get_basename(path)
+	if path == nil then
+		messenger:AddLog("Bad path passed to get_basename")
+		return nil
+	else
+		-- Get Go's path lib for a basename callback
+		local golib_path = import("path")
+		return golib_path.Base(path)
+	end
 end
 
 function displayerrormessage(err)
