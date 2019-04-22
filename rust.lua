@@ -1,36 +1,22 @@
-VERSION = "0.1.1"
--- Micro Editor options for this rust plugin
+VERSION = "0.1.2"
+-- Micro Editor options for this rust pluging
+optionList = {
+  "rust-plugin-onsave-fmt", true, -- Toggle format checking on/off 
+  "rust-plugin-rustfmt-backup", false, -- use rustfmt backup file option
+  "rust-plugin-linter-clippy", false, -- use clippy as linter on save
+  "rust-plugin-linter-cargo-check", false, -- use cargo check as linter on save
+  "rust-plugin-onsave-build", false, -- Toggle build on/off
+  "rust-plugin-tool-cargo-rustc", false} -- use cargo=true or rustc=false option to build
 
--- Format plugin options below
--- Toggle format checking on/off (default true)
-if GetOption("rust-plugin-use-fmt") == nil then
-    AddOption("rust-plugin-use-fmt", false)
-end
--- use rustfmt backup file option (default false)
-if GetOption("rust-plugin-backup") == nil then
-    AddOption("rust-plugin-backup", false)
-end
-
--- Linter plugin options below
--- use clippy linter on save (default false)
-if GetOption("rust-plugin-use-linter") == nil then
-    AddOption("rust-plugin-use-linter", false)
-end
--- use cargo check linter on save (default false)
-if GetOption("rust-plugin-cargo-check") == nil then
-    AddOption("rust-plugin-cargo-check", false)
+-- rust plugin options checking loop
+for i = 1, #optionList,2 do
+-- messenger:AddLog("rust-plugin: " .. optionList[i]) 
+if GetOption(optionList[i]) == nil then 
+	AddOption(optionList[i],optionList[i+1])
 end
 
--- Build options below
--- toggle build option on/off (default false)
-if GetOption("rust-plugin-build") == nil then
-    AddOption("rust-plugin-build", false)
-end
--- use cargo or rustc option to build (default false)
--- true use cargo to build all the project
--- false use rustc to build current file only
-if GetOption("rust-plugin-use-cargo") == nil then
-    AddOption("rust-plugin-use-cargo", false)
+-- if type(optionList[i+1]) == "boolean" then messenger:AddLog("rust-plugin: bool")
+-- end
 end
 
 -- Micro editor Callback functions below
@@ -45,8 +31,8 @@ function onSave(view)
     -- check for rust file
     if CurView().Buf:FileType() == "rust" then
         -- check if to format code
-        if GetOption("rust-plugin-use-fmt") then
-            if GetOption("rust-plugin-use-cargo") then
+        if GetOption("rust-plugin-onsave-fmt") then
+            if GetOption("rust-plugin-tool-cargo-rustc") then
                 cargofmt()
             else
                 rustfmt()
@@ -54,15 +40,15 @@ function onSave(view)
         end
 
         -- check if to lint the code
-        if GetOption("rust-plugin-use-linter") then
+        if GetOption("rust-plugin-linter-clippy") then
             cargoclippy()
         end
-        if GetOption("rust-plugin-cargo-check") then
+        if GetOption("rust-plugin-linter-cargo-check") then
             cargocheck()
         end
 
         -- check if to build the code
-        if GetOption("rust-plugin-build") then
+        if GetOption("rust-plugin-onsave-build") then
             rustc()
         end
     end
@@ -199,13 +185,32 @@ function displayerrormessage(err)
     messenger:Error(err)
 end
 
--- Micro Editor help file for this plugin
+function rustInfo()
+	messenger:AddLog("rust-plugin Optons Info")
+    messenger:AddLog("=======================")
+    local option = nil
+    for i = 1, #optionList , 2 do -- loop step 2 over list
+        pluginOption = GetOption(optionList[i])
+        if pluginOption == nil then
+        messenger:AddLog("Option " .. optionList[i] .. "missing")
+        end
+        if pluginOption == false then 
+                messenger:AddLog(optionList[i] .. ": = false")
+                else
+                messenger:AddLog(optionList[i] .. ": = true")
+    end
+end
+-- TODO check tools installed and display status
+end
+
 AddRuntimeFile("rust", "help", "help/rust-plugin.md")
 -- Micro Editor binkeys for this plugin
 --indKey("F6", "rust.rustfmt")
+
 -- Micro Editor commands added from this plugin
 MakeCommand("rustfmt", "rust.rustfmt", 0)
 MakeCommand("cargofmt", "rust.cargofmt", 0)
 MakeCommand("cargocheck", "rust.cargocheck", 0)
 MakeCommand("cargoclippy", "rust.cargoclippy", 0)
 MakeCommand("rustc", "rust.rustc", 0)
+MakeCommand("rustInfo", "rust.rustInfo", 0)
