@@ -28,18 +28,19 @@ end
 
 --Micro editor Callback function when the file is saved
 function onSave(view)
-    -- check for rust file
+    -- check if the file ssved is a rust file
     if CurView().Buf:FileType() == "rust" then
-        -- check if to format code
+        -- check if to format the code
         if GetOption("rust-plugin-onsave-fmt") then
             if GetOption("rust-plugin-tool-cargo-rustc") then
+                -- true use cargo false use rust
                 cargofmt()
             else
                 rustfmt()
             end
         end
 
-        -- check if to lint the code
+        -- check option if to use a linter
         if GetOption("rust-plugin-linter-clippy") then
             cargoclippy()
         end
@@ -47,7 +48,7 @@ function onSave(view)
             cargocheck()
         end
 
-        -- check if to build the code
+        -- check option if to build the code
         if GetOption("rust-plugin-onsave-build") then
             rustc()
         end
@@ -72,15 +73,18 @@ function runshellcommand(runcommand)
     CurView():ReOpen()
 end
 
--- rustfmt() is used for formating current file in Micro editor
+-- rustfmt() is used for formating the current file
 function rustfmt()
-    messenger:AddLog("rust-plugin - function rustfmt")
+        local result=nil
+    messenger:AddLog("rust-plugin - function rustfmt")  -- debug function info
     if GetOption("rust-plugin-backup") then
-        runshellcommand("rustfmt --backup " .. CurView().Buf.Path)
-    else
-        messenger:AddLog("rustfmt path = " .. CurView().Buf.Path)
-        runshellcommand("rustfmt " .. CurView().Buf.Path)
-    end
+        result = runshellcommand("rustfmt --backup " .. CurView().Buf.Path)
+        messenger:AddLog("rustfmt backup result = " .. tostring(result))
+        else
+        messenger:AddLog("rustfmt path = " .. CurView().Buf.Path) -- debug path info
+        result = runshellcommand("rustfmt " .. CurView().Buf.Path)
+        messenger:AddLog("rustfmt result = " .. tostring(result)) -- debug command result info  
+end
 end
 
 -- cargofmt() is used for formating current project in Micro editor
