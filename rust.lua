@@ -55,41 +55,38 @@ function onSave(view)
     end
 end
 
--- run commad in shell with debuging logging in micro
+-- run commad in shell with debuging logging info
 function runshellcommand(runcommand)
-    messenger:AddLog("rust-plugin - function runshellcommand command = " .. runcommand)
+    messenger:AddLog("rust-plugin -> function runshellcommand command = " .. runcommand)
     -- CurView():Save(false) TODO Only needed if run from command
-    args, error = RunShellCommand(runcommand)
-	if args == nil then
-		messenger:AddLog("rust-plugin - args = nil")
-	elseif args == "" then
-	messenger:AddLog("rust-plugin - runshellcommand args = empty string")
-	else messenger:AddLog("rust-plugin - runshellcommand args = " .. args)
+    results, error = RunShellCommand(runcommand)
+	if results == nil then
+		messenger:AddLog("rust-plugin -> runshellcommand results = nil")
+	elseif results == "" then
+	messenger:AddLog("rust-plugin -> runshellcommand results = empty string")
+	else messenger:AddLog("rust-plugin -> runshellcommand results = " .. results)
 	end
---    if error == nil then
---    	messenger:AddLog("rust-plugin - error = nil") 
---    	else messenger:AddLog("rust-plugin - runshellcommand error = " .. error)
---	end
+    if error ~= nil then
+        messenger:AddLog("rust-plugin -> runshellcommand error = " )
+        messenger:AddLog(error)
+	end
     CurView():ReOpen()
 end
 
 -- rustfmt() is used for formating the current file
 function rustfmt()
-        local result=nil
-    messenger:AddLog("rust-plugin - function rustfmt")  -- debug function info
+    messenger:AddLog("rust-plugin -> function rustfmt")  -- debug function info
     if GetOption("rust-plugin-backup") then
-        result = runshellcommand("rustfmt --backup " .. CurView().Buf.Path)
-        messenger:AddLog("rustfmt backup result = " .. tostring(result))
+        runshellcommand("rustfmt --backup " .. CurView().Buf.Path)
         else
         messenger:AddLog("rustfmt path = " .. CurView().Buf.Path) -- debug path info
-        result = runshellcommand("rustfmt " .. CurView().Buf.Path)
-        messenger:AddLog("rustfmt result = " .. tostring(result)) -- debug command result info  
+        runshellcommand("rustfmt " .. CurView().Buf.Path) 
 end
 end
 
 -- cargofmt() is used for formating current project in Micro editor
 function cargofmt()
-    messenger:AddLog("rust-plugin - function cargofmt")
+    messenger:AddLog("rust-plugin -> function cargofmt")
     -- Keeps track of the current working directory
     local current_dir = WorkingDirectory()
     messenger:AddLog("dir = " .. current_dir)
@@ -104,7 +101,7 @@ end
 
 -- rustc() is used for linting current file in Micro editor
 function rustc()
-    messenger:AddLog("rust-plugin - function rustc")
+    messenger:AddLog("rust-plugin -> function rustc")
     runshellcommand("rustc --error-format short " .. CurView().Buf.Path)
     -- messenger:AddLog(out(args))
     -- TODO Needs finishing
@@ -113,7 +110,7 @@ end
 -- cargoclippy() is used for checking current file in Micro editor
 -- clippy report is in the log e.g In Micro Editor ctrl e log
 function cargoclippy()
-    messenger:AddLog("rust-plugin - function cargoclippy")
+    messenger:AddLog("rust-plugin -> function cargoclippy")
     runshellcommand("cargo-clippy " .. CurView().Buf.Path)
     -- TODO Needs finishing
 end
@@ -131,7 +128,7 @@ function cargocheck()
 end
 
 function out(output)
-    messenger:AddLog("rust-plugin - function out")
+    messenger:AddLog("rust-plugin -> function out")
     if output == nil then
         messenger:AddLog("output = nil")
         return
@@ -152,7 +149,7 @@ function out(output)
 end
 
 function split(str, sep)
-    messenger:AddLog("rust-plugin - function splitn str = " .. str " sep = " .. sep)
+    messenger:AddLog("rust-plugin -> function splitn str = " .. str " sep = " .. sep)
     local result = {}
     local regex = ("([^%s]+)"):format(sep)
     for each in str:gmatch(regex) do
@@ -162,7 +159,7 @@ function split(str, sep)
 end
 
 function basename(file)
-    messenger:AddLog("rust-plugin - function basename file = " .. file)
+    messenger:AddLog("rust-plugin -> function basename file = " .. file)
     local sep = "/"
     if OS == "windows" then
         sep = "\\"
@@ -185,7 +182,7 @@ local function get_basename(path)
 end
 
 function displayerrormessage(err)
-    messenger:AddLog("rust-plugin - function displayerrormessage error = " .. error)
+    messenger:AddLog("rust-plugin -> function displayerrormessage error = " .. error)
     messenger:Error(err)
 end
 
