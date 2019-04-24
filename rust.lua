@@ -206,7 +206,7 @@ end
 
 AddRuntimeFile("rust", "help", "help/rust-plugin.md")
 -- Micro Editor binkeys for this plugin
---indKey("F6", "rust.rustfmt")
+-- BindKey("F6", "rust.rustfmt")
 
 -- Micro Editor commands added from this plugin
 MakeCommand("rustfmt", "rust.rustfmt", 0)
