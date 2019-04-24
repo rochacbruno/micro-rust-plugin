@@ -58,7 +58,7 @@ end
 -- run commad in shell with debuging logging info
 function runshellcommand(runcommand)
     messenger:AddLog("rust-plugin -> function runshellcommand command = " .. runcommand)
-    -- CurView():Save(false) TODO Only needed if run from command
+    -- CurView():Save(false) TODO: Only needed if run from command
     results, error = RunShellCommand(runcommand)
 	if results == nil then
 		messenger:AddLog("rust-plugin -> runshellcommand results = nil")
@@ -104,7 +104,7 @@ function rustc()
     messenger:AddLog("rust-plugin -> function rustc")
     runshellcommand("rustc --error-format short " .. CurView().Buf.Path)
     -- messenger:AddLog(out(args))
-    -- TODO Needs finishing
+    -- TODO: Needs finishing
 end
 
 -- cargoclippy() is used for checking current file in Micro editor
@@ -112,7 +112,7 @@ end
 function cargoclippy()
     messenger:AddLog("rust-plugin -> function cargoclippy")
     runshellcommand("cargo-clippy " .. CurView().Buf.Path)
-    -- TODO Needs finishing
+    -- TODO: Needs finishing
 end
 
 -- cargocheck() is used for checking current project in Micro editor
@@ -121,7 +121,7 @@ function cargocheck()
     CurView():Save(false)
     local file = CurView().Buf.Path
     local dir = DirectoryName(file)
-    -- todo go up folder to find toml file
+    -- TODO: go up folder to find toml file
     CurView():ClearGutterMessages("rust-plugin")
     JobSpawn("cargo", {"check", "--message-format", "short"}, "", "", "rust.out")
     CurView():ReOpen()
@@ -201,7 +201,7 @@ function rustInfo()
                 messenger:AddLog(optionList[i] .. ": = true")
     end
 end
--- TODO check tools installed and display status
+-- TODO: check tools installed and display status
 end
 
 AddRuntimeFile("rust", "help", "help/rust-plugin.md")
