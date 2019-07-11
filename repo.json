@@ -1,5 +1,5 @@
 [{
-  "Name": "rust",
+  "Name": "micro-rust-plugin",
   "Description": "adds more rust language support",
   "Tags": ["rustlang", "rust"],
   "Versions": [
